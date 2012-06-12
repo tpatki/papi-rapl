@@ -1,0 +1,4 @@
+UTILOBJS= ../../../testlib/do_loops.o ../../../testlib/test_utils.o ../../../testlib/dummy.o
+INCLUDE = -I../../../testlib -I../../.. -I.
+PAPILIB = ../../../libpapi.a 
+

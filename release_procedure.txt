@@ -1,0 +1,160 @@
+Release Procedure for PAPI  Apr 17, 2012 (now with git!)
+
+Below is a step-wise procedure for making a PAPI release.
+This is a living document and may not be totally current or accurate.
+It is an attempt to capture current practice in making a PAPI release.
+Please update it as appropriate.
+
+One way to use this procedure is to print a copy and check off
+the lines as they are completed to avoid confusion.
+================================================================================
+__ 0a. Notify developers that a release is imminent and the repository should be
+	considered frozen.
+
+__ 0b. Update your local copy from git to make sure you have all changes.
+	git pull
+
+__ 1. If this is not an incremental release, branch git. 
+	git checkout -b stable-X.Y [starting point eg master]
+
+__ 2. Update any documentation that may have changed. Pay particular attention
+	to INSTALL.txt.
+
+__ 3. Check/Change the version number in: papi.spec, papi.h, configure.in, Makefile.in,
+	Doxyfile-common (PROJECT_NUMBER) ; and commit to the repo.
+
+-- 3a. On most icl machines:
+	export PATH=/mnt/scratch/sw/doxygen-1.7.4/bin:$PATH
+	-- or --
+	setenv PATH /mnt/scratch/sw/doxygen-1.7.4/bin:$PATH
+
+-- 3b. Rebuild the doxygen manpages (  cd doc && make && make install )
+	You will want to check if anything needs to be committed to cvs.
+	(Usually the $(papi_dir)/man/man1 and man3 directories)
+
+-- 3c. Update the website docs; 
+	We use Doxyfile-html for this, 
+	newgrp papi		# changes your defacto group to papi (starts a new shell)
+	$(papi_dir)/doc make clean html
+	rm -rf /silk/homes/icl/projectsdev/papi/docs/* 
+	cp -R doc/html/* /silk/homes/icl/projectsdev/papi/docs;
+	chmod -R 775 /silk/homes/icl/projectsdev/papi/docs
+
+__ 4. If configure.in is changed, run autoconf (2.59) and commit the resulting
+	configure file.
+	NOTE: Using an autoconf version >2.59 will work, but will produce an 
+	inordinate number of extraneous differences between versions.
+
+__ 5. Create a ChangeLog for the current release. 
+	We use a python script gitlog2changelog.py to generate is for us. 
+	It expects the tag of the last release as an argument. 
+	./gitlog2changelog.py papi-a-b-c-t
+	mv ChangeLog ChangeLogP4XYZ.txt
+
+__ 6. Scan the ChangeLog to remove extraneous fluff, like perfctr imports.
+
+__ 7. Modfy RELEASENOTES.txt to summarize the major changes listed in the log.
+
+__ 8. Add ChangeLogXYZ.txt to git and commit both ChangeLogXYZ.txt and 
+	RELEASENOTES.txt.
+
+__ 9. Tag git: papi-X-Y-Z-t.
+	git tag -a papi-X-Y-Z-t
+
+__ 10. Push everything to the central repo. 
+	git push --tags 
+	-- or -- If you've created a new branch. 
+	git push --tags origin stable-X.Y: 
+
+__ 11. Copy your working directory to papi-X.Y.Z
+	> cp -R papi papi-X.Y.X
+	> cd papi-X.Y.Z
+
+__ 12. Delete any unneccessary files or directories
+		particularly .doc and .pdf files in the /doc directory
+	Things needed in /doc {Doxyfile, Doxyfile-everything}
+        You can use the delete_before_release.sh script for this.
+	NOTE: This deletes the .git directory, 
+
+__ 13. tar the directory:
+	> tar -cvf papi-X.Y.Z.tar papi-X.Y.Z
+
+__ 14. zip the tarball:
+	gzip papi-X.Y.Z.tar
+
+__ 15. Copy the tarball to /silk/homes/icl/projects/papi/downloads
+
+__ 16. Check permissions on the tarball. 664 is good. 
+
+__ 17. Create a link with supporting text on the PAPI software web page.
+
+__ 18. Create a News item on the PAPI Web page.
+
+__ 19. Email the papi developer and discussion lists with an announcement.
+
+__ 20. Post the announcement on the PAPI User Forum.
+
+================================================================================
+
+Patch Procedure for PAPI  January 29, 2010
+
+Below is a step-wise procedure for making a PAPI patch.
+
+One way to use this procedure is to print a copy and check off
+the lines as they are completed to avoid confusion.
+================================================================================
+__ 0. Make sure that the version of cvs that you are using to create the patch is the same 
+        as the version used to create the tarball to be patched. Versions before 1.12.9 use
+        backslashes in date strings; versions after that use hyphens. The two don't mix!
+
+__ 1. Export the tagged version of PAPI that you want to patch against:
+	> cvs export -r <tag> <module> ex:
+	> cvs export -r papi-4-0-0-t papi
+	Exporting eliminates the cvs directories that will change between versions.
+
+__ 2. Rename the tagged directory:
+	mv papi papi400t
+
+__ 3. Export the branch of PAPI that you want to patch with:
+	> cvs export -r <branch> <module> ex:
+	> cvs export -r papi-4-0-0-b papi
+
+__ 4. Rename the branch directory:
+	mv papi papi400b
+
+__ 5. Diff the two directories:
+	> diff -rupwBN <original> <new> > <output.diff> ex:
+	> diff -rupwBN papi 400t papi400b > papi400patch1.diff
+	
+	The flags for diff are:
+	-r: recursive
+	-u: unified
+	-p: show function names
+	-w: ignore all white space
+	-B: ignore changes whose lines are blank
+	-N: treat absent files as empty
+
+__ 6. Create a copy of the directory to be patched and cd into it.
+
+__ 7. Apply the patch:
+                > patch -p1 ../<patchfile>
+                > patch -p1 ../papi400patch3.diff
+
+__ 8. If the patch applied cleanly, build and test on affected platforms;
+         otherwise clean up the patch and try again.
+
+__ 9. Copy the diff file to icl:/sw/www/icl/projects/papi/downloads/patches
+
+__ 10. Check permissions on the diff. 644 is good. 
+
+__ 11. Create a link with supporting text on the PAPI software web page.
+
+__ 12. Create a News item on the PAPI Web page.
+
+__ 13. Email the papi discussion list with an announcement.
+
+__ 14. Post the announcement on the PAPI User Forum.
+
+
+
+
