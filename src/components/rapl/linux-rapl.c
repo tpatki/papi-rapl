@@ -157,6 +157,13 @@ static long long read_msr(int fd, int which) {
   return (long long)data;
 }
 
+/* Patki: Definitions for writing to MSRs. Need one that writes to a single core, and another that writes to all cores, for flexibility.  */
+
+static int write_msr(int fd, int which, uint64_t val) {
+
+	return PAPI_OK; 
+}
+
 static int open_fd(int offset) {
   
   int fd=-1;
