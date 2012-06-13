@@ -761,7 +761,12 @@ _rapl_reset( hwd_context_t *ctx, hwd_control_state_t *ctl )
 {
     ( void ) ctx;
     ( void ) ctl;
-	
+
+	/*Patki: Gets called by PAPI_reset */
+	/*need to restore default values here. */
+	/*Need to also add a debug macro that would reset all
+ 	* registers in case of an error */	
+
     return PAPI_OK;
 }
 
