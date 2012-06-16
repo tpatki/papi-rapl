@@ -115,6 +115,7 @@ typedef struct _rapl_context
 {
   long long start_count[RAPL_MAX_COUNTERS];
   _rapl_control_state_t state;
+  
 } _rapl_context_t;
 
 
@@ -464,7 +465,7 @@ _rapl_init_substrate( int cidx )
 	   sprintf(rapl_native_events[i].description,
 		   "Energy used by chip package %d",j);
 	   rapl_native_events[i].fd_offset=cpu_to_use[j];
-	   rapl_native_events[i].msr=MSR_PKG_ENERGY_STATUS;
+	   rapl_native_events[i].msr= MSR_PKG_ENERGY_STATUS;
 	   rapl_native_events[i].resources.selector = i + 1;
 	   rapl_native_events[i].type=PACKAGE_ENERGY;
 	   rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
@@ -774,6 +775,7 @@ _rapl_reset( hwd_context_t *ctx, hwd_control_state_t *ctl )
 	/*Need to also add a debug macro that would reset all
  	* registers in case of an error */	
 
+    
     return PAPI_OK;
 }
 
