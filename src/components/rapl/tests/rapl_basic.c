@@ -17,17 +17,16 @@
 
 #define MAX_RAPL_EVENTS 64
 
-
 #ifdef BASIC_TEST
 
 void run_test(int quiet) {
 
      if (!quiet) {
-	printf("Sleeping 1 second...\n");
+	printf("Sleeping 2 second...\n");
      }
 
      /* Sleep */
-     sleep(1);
+     sleep(2);
 }
 
 #else

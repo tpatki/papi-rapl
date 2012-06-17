@@ -146,11 +146,11 @@ int power_divisor,energy_divisor,time_divisor;
 /***************************************************************************/
 
 
-static long long read_msr(int fd, int which) {
+static long long read_msr(int fd, int msr) {
 
   uint64_t data;
 
-  if ( pread(fd, &data, sizeof data, which) != sizeof data ) {
+  if ( pread(fd, &data, sizeof data, msr) != sizeof data ) {
     perror("rdmsr:pread");
     exit(127);
   }
@@ -160,8 +160,12 @@ static long long read_msr(int fd, int which) {
 
 /* Patki: Definitions for writing to MSRs. Need one that writes to a single core, and another that writes to all cores, for flexibility.  */
 
-static int write_msr(int fd, int which, uint64_t val) {
+static int write_msr(int fd, int msr, uint64_t val) {
 
+	if(pwrite(fd, &val, (size_t) sizeof(uint64_t), msr) != sizeof(uint64_t)) {
+	  perror("wrmsr:pwrite");
+	  exit(127);
+	}
 	return PAPI_OK; 
 }
 
@@ -352,6 +356,9 @@ _rapl_init_substrate( int cidx )
      }
 
      SUBDBG("Found %d packages with %d cpus\n",num_packages,num_cpus);
+    
+      printf("rapl_comp: Found %d packages with %d cpus\n",num_packages,num_cpus);
+      
 
      /* Init fd_array */
 
@@ -623,6 +630,16 @@ _rapl_read( hwd_context_t *ctx, hwd_control_state_t *ctl,
 
     return PAPI_OK;
 }
+
+/*Patki: write call for MSRs. Invoked via PAPI_write only of the counters are running*/
+int
+_rapl_write(hwd_context_t *ctx, hwd_control_state_t *ctl, long long *events){
+
+	_rapl_context_t *context = (_rapl_context_t *)ctx;
+	_rapl_control_state_t *control = (_rapl_control_state_t *)ctl;
+
+}
+
 
 int 
 _rapl_stop( hwd_context_t *ctx, hwd_control_state_t *ctl )
@@ -905,7 +922,8 @@ papi_vector_t _rapl_vector = {
     .start =                _rapl_start,
     .stop =                 _rapl_stop,
     .read =                 _rapl_read,
-    .shutdown =             _rapl_shutdown,
+   	.write=			_rapl_write,
+	 .shutdown =             _rapl_shutdown,
     .shutdown_substrate =   _rapl_shutdown_substrate,
     .ctl =                  _rapl_ctl,
 
