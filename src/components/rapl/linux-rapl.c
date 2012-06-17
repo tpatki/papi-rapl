@@ -91,6 +91,7 @@ typedef struct _rapl_native_event_entry
   int msr;
   int type;
   int return_type;
+  int writeable; /*Patki: To indicate if an MSR can be written to. */
   _rapl_register_t resources;
 } _rapl_native_event_entry_t;
 
@@ -638,6 +639,13 @@ _rapl_write(hwd_context_t *ctx, hwd_control_state_t *ctl, long long *events){
 	_rapl_context_t *context = (_rapl_context_t *)ctx;
 	_rapl_control_state_t *control = (_rapl_control_state_t *)ctl;
 
+	int i; 
+
+	for(i=0;i<num_events; i++){
+		rapl_hw_write(control->being_measured[i],context, events[i])
+	}
+
+	return PAPI_OK;
 }
 
 
