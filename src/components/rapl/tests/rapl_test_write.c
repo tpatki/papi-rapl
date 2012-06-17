@@ -3,13 +3,13 @@
 /****************************/
 
 /** 
- * @author  Vince Weaver
- *
- * test case for RAPL component
+ * @author  Tapasya Patki
+ * 
+ * test case for RAPL component 
  * 
  * @brief
- *   Tests basic functionality of RAPL component
- */
+ * Tests the write function in rapl component 
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
