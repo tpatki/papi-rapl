@@ -140,7 +140,7 @@ int power_divisor,energy_divisor,time_divisor;
 #define PACKAGE_MINIMUM     2
 #define PACKAGE_MAXIMUM     3
 #define PACKAGE_TIME_WINDOW 4
-
+#define PACKAGE_MSR_RAW     5 /* PATKI: Raw type, return the register value as it is */
 
 /***************************************************************************/
 /******  BEGIN FUNCTIONS  USED INTERNALLY SPECIFIC TO THIS COMPONENT *******/
@@ -203,6 +203,14 @@ static long long read_rapl_energy(int index) {
    fd=open_fd(rapl_native_events[index].fd_offset);
    result=read_msr(fd,rapl_native_events[index].msr);
 
+    printf("In the read. MSR is %d (%x)", rapl_native_events[index].msr, rapl_native_events[index].msr); 
+	/*Patki*/
+   if (rapl_native_events[index].type==PACKAGE_MSR_RAW) {
+
+	return_val.ll = result; 
+   }
+   
+
    if (rapl_native_events[index].type==PACKAGE_ENERGY) {
 
       return_val.ll = (long long)(((double)result/energy_divisor)*1e9);
@@ -232,7 +240,8 @@ static long long read_rapl_energy(int index) {
                      (double)time_divisor;
    }
 
-   return return_val.ll;
+  
+ return return_val.ll;
 
 }
 
@@ -245,17 +254,20 @@ int cpus_per_package = num_cpus/num_packages;
 int i;
 int retval; 
 
-printf("\nThe index, value of the event is: %d, %x", index,value); 
-printf("\nstart_cpu, cpus_per_package:  %d, %d", start_cpu,cpus_per_package); 
+printf("\nThe index, write bit, msr, value of the event is: %d, %d, %d (%x), %ld (%x)", index, rapl_native_events[index].writeable, rapl_native_events[index].msr, rapl_native_events[index].msr, value, value); 
+printf("\nstart_cpu, cpus_per_package:  %d, %d\n", start_cpu, cpus_per_package); 
 
-for (i=start_cpu;i < (start_cpu + cpus_per_package); i++){
+if(rapl_native_events[index].writeable == 1) {
+	for (i=start_cpu;i < (start_cpu + cpus_per_package); i++){
 
-	fd = open_fd(i);
-	retval = write_msr(fd, rapl_native_events[index].msr, value);
-	if (retval != PAPI_OK) 
-		return retval; 
-}
-	return PAPI_OK;
+		printf("\ni at this point is %d", i);
+		fd = open_fd(i);
+		retval = write_msr(fd, rapl_native_events[index].msr, value);
+		if (retval != PAPI_OK) 
+			return retval; 
+	}
+    }
+ return PAPI_OK;
 }
 
 /************************* PAPI Functions **********************************/
@@ -579,7 +591,7 @@ _rapl_init_substrate( int cidx )
 	rapl_native_events[i].fd_offset=cpu_to_use[j];
 	rapl_native_events[i].msr=MSR_PKG_POWER_LIMIT;
 	rapl_native_events[i].resources.selector = i + 1;
-	rapl_native_events[i].type=PACKAGE_THERMAL;
+	rapl_native_events[i].type=PACKAGE_MSR_RAW;
 	rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
 	rapl_native_events[i].writeable=1;
 	i++;
@@ -596,7 +608,7 @@ _rapl_init_substrate( int cidx )
 	rapl_native_events[i].fd_offset=cpu_to_use[j];
 	rapl_native_events[i].msr=MSR_PP0_POWER_LIMIT;
 	rapl_native_events[i].resources.selector = i + 1;
-	rapl_native_events[i].type=PACKAGE_THERMAL;
+	rapl_native_events[i].type=PACKAGE_MSR_RAW;
 	rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
 	rapl_native_events[i].writeable=0;/*Currently, this is locked out on LC machines */
 
@@ -614,7 +626,7 @@ _rapl_init_substrate( int cidx )
 	rapl_native_events[i].fd_offset=cpu_to_use[j];
 	rapl_native_events[i].msr=MSR_PP1_POWER_LIMIT;
 	rapl_native_events[i].resources.selector = i + 1;
-	rapl_native_events[i].type=PACKAGE_THERMAL;
+	rapl_native_events[i].type=PACKAGE_MSR_RAW;
 	rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
 	rapl_native_events[i].writeable=0; /*Locked out */
 
@@ -632,7 +644,7 @@ _rapl_init_substrate( int cidx )
 	rapl_native_events[i].fd_offset=cpu_to_use[j];
 	rapl_native_events[i].msr=MSR_DRAM_POWER_LIMIT;
 	rapl_native_events[i].resources.selector = i + 1;
-	rapl_native_events[i].type=PACKAGE_THERMAL;
+	rapl_native_events[i].type=PACKAGE_MSR_RAW;
 	rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
 	rapl_native_events[i].writeable=0; /*Locked out on LC Machines at present*/
 
@@ -749,7 +761,7 @@ _rapl_write(hwd_context_t *ctx, hwd_control_state_t *ctl, long long *events){
 
 	for(i=0;i<RAPL_MAX_COUNTERS; i++){
 		if(control->being_measured[i]){
-	 		rapl_hw_write(control->being_measured[i], events[i]);
+	 		rapl_hw_write(i, events[i]);
 	   }
 	}
 
@@ -976,6 +988,8 @@ _rapl_ntv_code_to_name( unsigned int EventCode, char *name, int len )
 /*
  *
  */
+
+
 int
 _rapl_ntv_code_to_descr( unsigned int EventCode, char *name, int len )
 {
@@ -1054,4 +1068,5 @@ papi_vector_t _rapl_vector = {
     .ntv_code_to_name =     _rapl_ntv_code_to_name,
     .ntv_code_to_descr =    _rapl_ntv_code_to_descr,
     .ntv_code_to_info =     _rapl_ntv_code_to_info,
+    .ntv_name_to_code = 		NULL,
 };

@@ -8,7 +8,7 @@
  * test case for RAPL component 
  * 
  * @brief
- * Tests the write function in rapl component 
+ * Sequential test: Tests the write function in rapl component 
 */
 
 #include <stdio.h>
@@ -81,49 +81,36 @@ int main (int argc, char **argv)
        test_skip(__FILE__,__LINE__,"No rapl component found\n",0);
      }
 
+
+
      /* Create EventSet */
      retval = PAPI_create_eventset( &EventSet );
      if (retval != PAPI_OK) {
-	test_fail(__FILE__, __LINE__, 
-                              "PAPI_create_eventset()",retval);
+	test_fail(__FILE__, __LINE__, "PAPI_create_eventset()",retval);
      }
 
-     /* Add all events */
 
-     code = PAPI_NATIVE_MASK;
+	code = PAPI_NATIVE_MASK; 
 
-     r = PAPI_enum_cmp_event( &code, PAPI_ENUM_FIRST, rapl_cid );
+     /* Add the MSR_PKG_POWER_LIMIT event */
 
-     while ( r == PAPI_OK ) {
+	retval = PAPI_event_name_to_code("PACKAGE_POWER_LIMIT:PACKAGE0", &code);
+        if ( retval != PAPI_OK ) {
+           test_fail( __FILE__, __LINE__, "PACKAGE_POWER_LIMIT:PACKAGE0 not found\n",retval );
+        }
 
-        retval = PAPI_event_code_to_name( code, event_names[num_events] );
-	if ( retval != PAPI_OK ) {
-	   printf("Error translating %x\n",code);
-	   test_fail( __FILE__, __LINE__, 
-                            "PAPI_event_code_to_name", retval );
+	retval = PAPI_add_event( EventSet, code);
+        if ( retval != PAPI_OK ) {
+           test_fail( __FILE__, __LINE__, "PAPI_add_events failed\n", retval );
 	}
+     
+    num_events++;
 
-	retval = PAPI_get_event_info(code,&evinfo);
-	if (retval != PAPI_OK) {
-	  test_fail( __FILE__, __LINE__,
-             "Error getting event info\n",retval);
-	}
-	
-	strncpy(units[num_events],evinfo.units,PAPI_MIN_STR_LEN);
-
-        retval = PAPI_add_event( EventSet, code );
-        if (retval != PAPI_OK) {
-	  break; /* We've hit an event limit */
-	}
-	num_events++;
-  	      
-        r = PAPI_enum_cmp_event( &code, PAPI_ENUM_EVENTS, rapl_cid );
-     }
+    printf("\nNum_events: %d", num_events);
 
      values=calloc(num_events,sizeof(long long));
      if (values==NULL) {
-	test_fail(__FILE__, __LINE__, 
-                              "No memory",retval);
+	test_fail(__FILE__, __LINE__, "No memory",retval);
      }
 
      if (!TESTS_QUIET) {
@@ -137,67 +124,64 @@ int main (int argc, char **argv)
 	test_fail(__FILE__, __LINE__, "PAPI_start()",retval);
      }
 
+	/*Read the original values*/
+	retval = PAPI_read(EventSet, values);
+       if ( retval != PAPI_OK ) {
+           test_fail( __FILE__, __LINE__, "PAPI_read failed\n",retval );
+        }
+ 
+	printf("\nBEFORE PAPI_write(): Values are:");
+//	for(int j=0;j<num_events;j++){
+		printf("\nValues [%d] = %ld (%x) ", (int)0, values[0], values[0]);
+//	}	
+
+
+	printf("\n Clamping power to 55W and then running the test"); 
+
+	values[0] = (long long) (0x38198); 
+
+	printf("values[0] = %d (%x)", values[0], values[0]);
+	
+	retval = PAPI_write ( EventSet, values );
+        if ( retval != PAPI_OK ) {
+           test_fail( __FILE__, __LINE__, "PAPI_write failed\n",retval );
+        }
+
+
      /* Run test */
      run_test(TESTS_QUIET);
+
+	/*Read the values again */
+
+     retval = PAPI_read(EventSet, values); 
+     if ( retval != PAPI_OK ) {
+           test_fail( __FILE__, __LINE__, "PAPI_read failed\n",retval );
+        }
+
+
+	printf("\nAFTER PAPI_write(): Values are:");
+//	for(int j=0;j<num_events;j++){
+		printf("\nValues [%d] = %ld (%x)", (int)0, values[0], values[0]);
+//	}	
 
      /* Stop Counting */
      after_time=PAPI_get_real_nsec();
      retval = PAPI_stop( EventSet, values);
      if (retval != PAPI_OK) {
-	test_fail(__FILE__, __LINE__, "PAPI_start()",retval);
+	test_fail(__FILE__, __LINE__, "PAPI_stop()",retval);
      }
 
      elapsed_time=((double)(after_time-before_time))/1.0e9;
 
-     if (!TESTS_QUIET) {
-        printf("\nStopping measurements, took %.3fs, gathering results...\n\n",
-	       elapsed_time);
-
-	printf("Energy measurements:\n");
-
-	for(i=0;i<num_events;i++) {
-	   if (strstr(units[i],"nJ")) {
-
-	      printf("%s\t%.6fJ\t(Average Power %.1fW)\n",
-		    event_names[i],
-		    (double)values[i]/1.0e9,
-		    ((double)values[i]/1.0e9)/elapsed_time);
-	   }
-	}
-
-	printf("\n");
-	printf("Fixed values:\n");
-
-	for(i=0;i<num_events;i++) {
-	   if (!strstr(units[i],"nJ")) {
-
-	     union {
-	       long long ll;
-	       double fp;
-	     } result;
-
-	     result.ll=values[i];
-
-	      printf("%s\t%0.3f%s\n",
-		    event_names[i],
-		    result.fp,
-		    units[i]);
-	   }
-	}
-
-     }
-
      /* Done, clean up */
      retval = PAPI_cleanup_eventset( EventSet );
      if (retval != PAPI_OK) {
-	test_fail(__FILE__, __LINE__, 
-                              "PAPI_cleanup_eventset()",retval);
+	test_fail(__FILE__, __LINE__, "PAPI_cleanup_eventset()",retval);
      }
 
      retval = PAPI_destroy_eventset( &EventSet );
      if (retval != PAPI_OK) {
-	test_fail(__FILE__, __LINE__, 
-                              "PAPI_destroy_eventset()",retval);
+	test_fail(__FILE__, __LINE__, "PAPI_destroy_eventset()",retval);
      }
         
      test_pass( __FILE__, NULL, 0 );
