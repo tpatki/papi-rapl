@@ -543,10 +543,81 @@ _rapl_init_substrate( int cidx )
 	}
      }
 
-/*Patki: add events for power limits */
+/*Patki: add events for power limits. Can be used for power clamping. */
 /*Need to check somewhere for enable and clamp bits */
+/*Note: might have to change type.*/
+
+     if(package_avail){
+     for(j=0;j<num_packages;j++) {
+	sprintf(rapl_native_events[i].name,
+		"PACKAGE_POWER_LIMIT:PACKAGE%d",j);
+	strncpy(rapl_native_events[i].units,"W",PAPI_MIN_STR_LEN);
+	sprintf(rapl_native_events[i].description,
+		   "Package Power Limit MSR, package %d",j);
+	rapl_native_events[i].fd_offset=cpu_to_use[j];
+	rapl_native_events[i].msr=MSR_PKG_POWER_LIMIT;
+	rapl_native_events[i].resources.selector = i + 1;
+	rapl_native_events[i].type=PACKAGE_THERMAL;
+	rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
+	rapl_native_events[i].writeable=1;
+	i++;
+     }
+   }
+
+     if(pp0_avail) {
+     for(j=0;j<num_packages;j++) {
+	sprintf(rapl_native_events[i].name,
+		"PP0_POWER_LIMIT:PACKAGE%d",j);
+	strncpy(rapl_native_events[i].units,"W",PAPI_MIN_STR_LEN);
+	sprintf(rapl_native_events[i].description,
+		   "PP0 Power Limit MSR, Package %d",j);
+	rapl_native_events[i].fd_offset=cpu_to_use[j];
+	rapl_native_events[i].msr=MSR_PP0_POWER_LIMIT;
+	rapl_native_events[i].resources.selector = i + 1;
+	rapl_native_events[i].type=PACKAGE_THERMAL;
+	rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
+	rapl_native_events[i].writeable=0;/*Currently, this is locked out on LC machines */
+
+	i++;
+     }
+    }
+
+    if(pp1_avail){
+     for(j=0;j<num_packages;j++) {
+	sprintf(rapl_native_events[i].name,
+		"PP1_POWER_LIMIT:PACKAGE%d",j);
+	strncpy(rapl_native_events[i].units,"W",PAPI_MIN_STR_LEN);
+	sprintf(rapl_native_events[i].description,
+		   "PP1 Power Limit MSR, Package %d",j);
+	rapl_native_events[i].fd_offset=cpu_to_use[j];
+	rapl_native_events[i].msr=MSR_PP1_POWER_LIMIT;
+	rapl_native_events[i].resources.selector = i + 1;
+	rapl_native_events[i].type=PACKAGE_THERMAL;
+	rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
+	rapl_native_events[i].writeable=0; /*Locked out */
+
+	i++;
+     }
+    }
+
+     if(dram_avail) {
+     for(j=0;j<num_packages;j++) {
+	sprintf(rapl_native_events[i].name,
+		"DRAM_POWER_LIMIT: PACKAGE%d",j);
+	strncpy(rapl_native_events[i].units,"s",PAPI_MIN_STR_LEN);
+	sprintf(rapl_native_events[i].description,
+		   "DRAM Power Limit MSR, Package %d",j);
+	rapl_native_events[i].fd_offset=cpu_to_use[j];
+	rapl_native_events[i].msr=MSR_DRAM_POWER_LIMIT;
+	rapl_native_events[i].resources.selector = i + 1;
+	rapl_native_events[i].type=PACKAGE_THERMAL;
+	rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
+	rapl_native_events[i].writeable=0; /*Locked out on LC Machines at present*/
 
 
+	i++;
+     }
+    }
      /* Export the total number of events available */
      _rapl_vector.cmp_info.num_native_events = num_events;
 
@@ -653,11 +724,11 @@ _rapl_write(hwd_context_t *ctx, hwd_control_state_t *ctl, long long *events){
 	_rapl_control_state_t *control = (_rapl_control_state_t *)ctl;
 
 	int i; 
-
+/*
 	for(i=0;i<num_events; i++){
-		rapl_hw_write(control->being_measured[i],context, events[i])
+		rapl_hw_write(control->being_measured[i],context, events[i]);
 	}
-
+*/
 	return PAPI_OK;
 }
 
