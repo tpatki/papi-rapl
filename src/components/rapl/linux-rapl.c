@@ -236,6 +236,12 @@ static long long read_rapl_energy(int index) {
 
 }
 
+int
+rapl_hw_write(int index, _rapl_context_t *context, long long value) {
+
+
+}
+
 /************************* PAPI Functions **********************************/
 
 
@@ -724,11 +730,13 @@ _rapl_write(hwd_context_t *ctx, hwd_control_state_t *ctl, long long *events){
 	_rapl_control_state_t *control = (_rapl_control_state_t *)ctl;
 
 	int i; 
-/*
-	for(i=0;i<num_events; i++){
-		rapl_hw_write(control->being_measured[i],context, events[i]);
+
+	for(i=0;i<RAPL_MAX_COUNTERS; i++){
+		if(control->being_measured[i]){
+	 		rapl_hw_write(control->being_measured[i],context, events[i]);
+	   }
 	}
-*/
+
 	return PAPI_OK;
 }
 
@@ -883,7 +891,10 @@ _rapl_reset( hwd_context_t *ctx, hwd_control_state_t *ctl )
 	/*need to restore default values here. */
 	/*Need to also add a debug macro that would reset all
  	* registers in case of an error */	
-
+	/*Note: 6/16: This idea has been filed away for now
+	 * because there's no good way to handle this with PAPI (you can't
+	 * ensure that the reset routine is called, or call another function while exiting)
+	 * So, I am relying on an additional reset bash script to fix this issue. */	
     
     return PAPI_OK;
 }
