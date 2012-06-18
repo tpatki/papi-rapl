@@ -37,7 +37,7 @@
 #define MSR_RAPL_POWER_UNIT             0x606
 
 /* Package */
-#define MSR_PKG_RAPL_POWER_LIMIT        0x610
+#define MSR_PKG_POWER_LIMIT        	0x610
 #define MSR_PKG_ENERGY_STATUS           0x611
 #define MSR_PKG_PERF_STATUS             0x613
 #define MSR_PKG_POWER_INFO              0x614
@@ -394,7 +394,7 @@ _rapl_init_substrate( int cidx )
                  (pp0_avail*num_packages) +
                  (pp1_avail*num_packages) +
                  (dram_avail*num_packages) + 
-                 (4*num_packages);
+                 (4*num_packages) +/*Patki*/ (3*num_packages);
 
      rapl_native_events = (_rapl_native_event_entry_t*)
           papi_calloc(sizeof(_rapl_native_event_entry_t),num_events);
@@ -415,6 +415,7 @@ _rapl_init_substrate( int cidx )
 	rapl_native_events[i].resources.selector = i + 1;
 	rapl_native_events[i].type=PACKAGE_THERMAL;
 	rapl_native_events[i].return_type=PAPI_DATATYPE_FP64;
+	rapl_native_events[i].writeable=0;
 	i++;
      }
 
@@ -429,6 +430,7 @@ _rapl_init_substrate( int cidx )
 	rapl_native_events[i].resources.selector = i + 1;
 	rapl_native_events[i].type=PACKAGE_MINIMUM;
 	rapl_native_events[i].return_type=PAPI_DATATYPE_FP64;
+	rapl_native_events[i].writeable=0;
 
 	i++;
      }
@@ -444,6 +446,7 @@ _rapl_init_substrate( int cidx )
 	rapl_native_events[i].resources.selector = i + 1;
 	rapl_native_events[i].type=PACKAGE_MAXIMUM;
 	rapl_native_events[i].return_type=PAPI_DATATYPE_FP64;
+	rapl_native_events[i].writeable=0;
 
 	i++;
      }
@@ -459,6 +462,8 @@ _rapl_init_substrate( int cidx )
 	rapl_native_events[i].resources.selector = i + 1;
 	rapl_native_events[i].type=PACKAGE_TIME_WINDOW;
 	rapl_native_events[i].return_type=PAPI_DATATYPE_FP64;
+	rapl_native_events[i].writeable=0;
+
 
 	i++;
      }
@@ -477,6 +482,7 @@ _rapl_init_substrate( int cidx )
 	   rapl_native_events[i].resources.selector = i + 1;
 	   rapl_native_events[i].type=PACKAGE_ENERGY;
 	   rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
+	   rapl_native_events[i].writeable=0;
 
 	   i++;
 	}
@@ -494,6 +500,7 @@ _rapl_init_substrate( int cidx )
 	   rapl_native_events[i].resources.selector = i + 1;
 	   rapl_native_events[i].type=PACKAGE_ENERGY;
 	   rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
+	   rapl_native_events[i].writeable=0;
 
 	   i++;
 	}
@@ -511,6 +518,7 @@ _rapl_init_substrate( int cidx )
 	   rapl_native_events[i].resources.selector = i + 1;
 	   rapl_native_events[i].type=PACKAGE_ENERGY;
 	   rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
+	   rapl_native_events[i].writeable=0;
 
 	   i++;
 	}
@@ -529,10 +537,15 @@ _rapl_init_substrate( int cidx )
 	   rapl_native_events[i].resources.selector = i + 1;
 	   rapl_native_events[i].type=PACKAGE_ENERGY;
 	   rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
+	   rapl_native_events[i].writeable=0;
 
 	   i++;
 	}
      }
+
+/*Patki: add events for power limits */
+/*Need to check somewhere for enable and clamp bits */
+
 
      /* Export the total number of events available */
      _rapl_vector.cmp_info.num_native_events = num_events;
