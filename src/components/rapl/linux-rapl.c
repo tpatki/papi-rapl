@@ -237,9 +237,25 @@ static long long read_rapl_energy(int index) {
 }
 
 int
-rapl_hw_write(int index, _rapl_context_t *context, long long value) {
+rapl_hw_write(int index, long long value) {
 
+int fd;
+int start_cpu = rapl_native_events[index].fd_offset;
+int cpus_per_package = num_cpus/num_packages;
+int i;
+int retval; 
 
+printf("\nThe index, value of the event is: %d, %x", index,value); 
+printf("\nstart_cpu, cpus_per_package:  %d, %d", start_cpu,cpus_per_package); 
+
+for (i=start_cpu;i < (start_cpu + cpus_per_package); i++){
+
+	fd = open_fd(i);
+	retval = write_msr(fd, rapl_native_events[index].msr, value);
+	if (retval != PAPI_OK) 
+		return retval; 
+}
+	return PAPI_OK;
 }
 
 /************************* PAPI Functions **********************************/
@@ -733,7 +749,7 @@ _rapl_write(hwd_context_t *ctx, hwd_control_state_t *ctl, long long *events){
 
 	for(i=0;i<RAPL_MAX_COUNTERS; i++){
 		if(control->being_measured[i]){
-	 		rapl_hw_write(control->being_measured[i],context, events[i]);
+	 		rapl_hw_write(control->being_measured[i], events[i]);
 	   }
 	}
 
