@@ -183,7 +183,7 @@ static int open_fd(int offset) {
 
   if (fd_array[offset].open==0) {
      sprintf(filename,"/dev/cpu/%d/msr",offset);
-     fd = open(filename, O_RDONLY);
+     fd = open(filename, O_RDWR);
      if (fd>=0) {
         fd_array[offset].fd=fd;
 	fd_array[offset].open=1;
