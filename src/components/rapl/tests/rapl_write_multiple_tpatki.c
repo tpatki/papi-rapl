@@ -38,7 +38,7 @@ int main (int argc, char **argv)
     int code;
     char event_names[MAX_RAPL_EVENTS][PAPI_MAX_STR_LEN];
     char units[MAX_RAPL_EVENTS][PAPI_MIN_STR_LEN];
-    int r,i;
+    int r,i, j;
     const PAPI_component_info_t *cmpinfo = NULL;
     PAPI_event_info_t evinfo;
     long long before_time,after_time;
@@ -90,9 +90,10 @@ int main (int argc, char **argv)
      }
 
 
-	code = PAPI_NATIVE_MASK; 
 
-     /* Add the MSR_PKG_POWER_LIMIT event */
+
+     /* Add the MSR_PKG_POWER_LIMIT: PACKAGE0 event */
+	code = PAPI_NATIVE_MASK; 
 
 	retval = PAPI_event_name_to_code("PACKAGE_POWER_LIMIT:PACKAGE0", &code);
         if ( retval != PAPI_OK ) {
@@ -106,7 +107,67 @@ int main (int argc, char **argv)
      
     num_events++;
 
+
+
+
+     /* Add the PACKAGE_ENERGY:  PACKAGE0 event */
+        code = PAPI_NATIVE_MASK;
+
+        retval = PAPI_event_name_to_code("PACKAGE_ENERGY:PACKAGE0", &code);
+        if ( retval != PAPI_OK ) {
+           test_fail( __FILE__, __LINE__, "PACKAGE_ENERGY:PACKAGE0 not found\n",retval );
+        }
+
+        retval = PAPI_add_event( EventSet, code);
+        if ( retval != PAPI_OK ) {
+           test_fail( __FILE__, __LINE__, "PAPI_add_events failed\n", retval );
+        }
+
+    num_events++;
+
+
+
+
+
+     /* Add the PACKAGE_POWER_LIMIT: PACKAGE1 event */
+	code = PAPI_NATIVE_MASK; 
+
+        retval = PAPI_event_name_to_code("PACKAGE_POWER_LIMIT:PACKAGE1", &code);
+        if ( retval != PAPI_OK ) {
+           test_fail( __FILE__, __LINE__, "PACKAGE_POWER_LIMIT:PACKAGE1 not found\n",retval );
+        }
+
+        retval = PAPI_add_event( EventSet, code);
+        if ( retval != PAPI_OK ) {
+           test_fail( __FILE__, __LINE__, "PAPI_add_events failed\n", retval );
+        }
+
+    num_events++;
+
+
+ /* Add the PACKAGE_ENERGY:  PACKAGE1 event */
+        code = PAPI_NATIVE_MASK;
+
+        retval = PAPI_event_name_to_code("PACKAGE_ENERGY:PACKAGE1", &code);
+        if ( retval != PAPI_OK ) {
+           test_fail( __FILE__, __LINE__, "PACKAGE_ENERGY:PACKAGE1 not found\n",retval );
+        }
+
+        retval = PAPI_add_event( EventSet, code);
+        if ( retval != PAPI_OK ) {
+           test_fail( __FILE__, __LINE__, "PAPI_add_events failed\n", retval );
+        }
+
+    num_events++;
+
+
+
+
     printf("\nNum_events: %d", num_events);
+
+
+
+
 
      values=calloc(num_events,sizeof(long long));
      if (values==NULL) {
@@ -131,19 +192,20 @@ int main (int argc, char **argv)
         }
  
 	printf("\nBEFORE PAPI_write(): Values are:");
-//	for(int j=0;j<num_events;j++){
-		printf("\nValues [%d] = %ld (%x) ", (int)0, values[0], values[0]);
-//	}	
+	for(j=0;j<num_events;j++){
+		printf("\nValues [%d] = %ld (%x) ", (int)j, values[j], values[j]);
+	}	
 
 
 	printf("\n Clamping power to 55W and then running the test"); 
 
 	values[0] = (long long) (0x38198); 
+	values[2] = (long long) (0x38198);
 
-	printf("values[0] = %d (%x)", values[0], values[0]);
 	
 	retval = PAPI_write ( EventSet, values );
-        if ( retval != PAPI_OK ) {
+       
+	 if ( retval != PAPI_OK ) {
            test_fail( __FILE__, __LINE__, "PAPI_write failed\n",retval );
         }
 
@@ -160,9 +222,9 @@ int main (int argc, char **argv)
 
 
 	printf("\nAFTER PAPI_write(): Values are:");
-//	for(int j=0;j<num_events;j++){
-		printf("\nValues [%d] = %ld (%x)", (int)0, values[0], values[0]);
-//	}	
+	for(j=0;j<num_events;j++){
+		printf("\nValues [%d] = %ld (%x)", (int)j, values[j], values[j]);
+	}	
 
      /* Stop Counting */
      after_time=PAPI_get_real_nsec();
