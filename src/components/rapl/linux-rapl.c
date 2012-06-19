@@ -164,11 +164,14 @@ static long long read_msr(int fd, int msr) {
 
 /* Patki: Definitions for writing to MSRs. Need one that writes to a single core, and another that writes to all cores, for flexibility.  */
 
-static int write_msr(int fd, int msr, uint64_t val) {
+static int write_msr(int fd, off_t msr, uint64_t val) {
 
-	if(pwrite(fd, &val, (size_t) sizeof(uint64_t), msr) != sizeof(uint64_t)) {
+	printf("\n WRMSR INPUTS: %d %d (%x) %ld", fd, msr,msr, val); 
+
+	if(pwrite(fd, &val,sizeof(val), msr) != sizeof(val)) {
 	  perror("wrmsr:pwrite");
-	  exit(127);
+	  close(fd);  
+	 exit(127);
 	}
 	return PAPI_OK; 
 }
