@@ -209,7 +209,6 @@ static long long read_rapl_energy(int index) {
    fd=open_fd(rapl_native_events[index].fd_offset);
    result=read_msr(fd,rapl_native_events[index].msr);
 
-    printf("In the read. MSR is %d (%x)", rapl_native_events[index].msr, rapl_native_events[index].msr); 
 	/*Patki*/
    if (rapl_native_events[index].type==PACKAGE_MSR_RAW) {
 
@@ -261,17 +260,15 @@ int i;
 int retval; 
 
 printf("\nThe index, write bit, msr, value of the event is: %d, %d, %d (%x), %ld (%x)", index, rapl_native_events[index].writeable, rapl_native_events[index].msr, rapl_native_events[index].msr, value, value); 
-printf("\nstart_cpu, cpus_per_package:  %d, %d\n", start_cpu, cpus_per_package); 
 
 if(rapl_native_events[index].writeable == 1) {
 	for (i=start_cpu;i < (start_cpu + cpus_per_package); i++){
 
-		printf("\ni at this point is %d", i);
-		fd = open_fd(i);
+/*		fd = open_fd(i);
 		retval = write_msr(fd, rapl_native_events[index].msr, value);
 		if (retval != PAPI_OK) 
 			return retval; 
-	}
+*/	}
     }
  return PAPI_OK;
 }
@@ -723,7 +720,6 @@ _rapl_read( hwd_context_t *ctx, hwd_control_state_t *ctl,
     long long temp;
 
 
-	printf("\n rapl_read count is %d", control->eventCount); 
 
     /* Only read the values from the kernel if enough time has passed */
     /* since the last read.  Otherwise return cached values.          */
@@ -770,7 +766,6 @@ _rapl_write(hwd_context_t *ctx, hwd_control_state_t *ctl, long long *events){
         int j; 
 
 
-	printf("\nIn rapl_write: eventCount %d, events[j]: %d",control->eventCount, events[0] ); 
 
 	/*PATKI:The values[] array would contain eventCount number of entries corresponding to
  * the event set. */
@@ -903,8 +898,14 @@ _rapl_update_control_state( hwd_control_state_t *ctl,
 
     for( i = 0; i < count; i++ ) {
        index=native[i].ni_event&PAPI_NATIVE_AND_MASK&PAPI_COMPONENT_AND_MASK;
-       native[i].ni_position=rapl_native_events[index].resources.selector - 1;
+    //   native[i].ni_position=rapl_native_events[index].resources.selector - 1;
        control->being_measured[index]=1;
+	
+	native[i].ni_position = i;
+
+	printf("\nnative[%d].ni_event is %d", i, native[i].ni_event); 
+	printf("\nI need the position: native[%d].ni_position is %d",i, native[i].ni_position); 
+
 
        /* Only need to subtract if it's a PACKAGE_ENERGY type */
        control->need_difference[index]=
