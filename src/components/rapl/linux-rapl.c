@@ -259,13 +259,12 @@ int cpus_per_package = num_cpus/num_packages;
 int i;
 int retval; 
 
-
-printf("\nThe index,index.orderInEventSet, write bit, msr, value of the event is: %d, %d, %d, %d (%x), %ld (%x)", index, index, rapl_native_events[index].writeable, rapl_native_events[index].msr, rapl_native_events[index].msr, value, value); 
+printf("\nThe index, write bit, msr, value of the event is: %d, %d, %d (%x), %ld (%x)", index, rapl_native_events[index].writeable, rapl_native_events[index].msr, rapl_native_events[index].msr, value, value); 
 
 if(rapl_native_events[index].writeable == 1) {
 	for (i=start_cpu;i < (start_cpu + cpus_per_package); i++){
 
-	/*	fd = open_fd(i);
+/*		fd = open_fd(i);
 		retval = write_msr(fd, rapl_native_events[index].msr, value);
 		if (retval != PAPI_OK) 
 			return retval; 
@@ -438,7 +437,7 @@ _rapl_init_substrate( int cidx )
           papi_calloc(sizeof(_rapl_native_event_entry_t),num_events);
 
 
-    // i=0;
+     i=0;
 
      /* Create events for  package power info */
 
@@ -450,7 +449,7 @@ _rapl_init_substrate( int cidx )
 		   "Thermal specification package %d",j);
 	rapl_native_events[i].fd_offset=cpu_to_use[j];
 	rapl_native_events[i].msr=MSR_PKG_POWER_INFO;
-	rapl_native_events[i].resources.selector = i+1;
+	rapl_native_events[i].resources.selector = i + 1;
 	rapl_native_events[i].type=PACKAGE_THERMAL;
 	rapl_native_events[i].return_type=PAPI_DATATYPE_FP64;
 	rapl_native_events[i].writeable=0;
@@ -465,7 +464,7 @@ _rapl_init_substrate( int cidx )
 		   "Minimum power for package %d",j);
 	rapl_native_events[i].fd_offset=cpu_to_use[j];
 	rapl_native_events[i].msr=MSR_PKG_POWER_INFO;
-	rapl_native_events[i].resources.selector = i+1;
+	rapl_native_events[i].resources.selector = i + 1;
 	rapl_native_events[i].type=PACKAGE_MINIMUM;
 	rapl_native_events[i].return_type=PAPI_DATATYPE_FP64;
 	rapl_native_events[i].writeable=0;
@@ -481,7 +480,7 @@ _rapl_init_substrate( int cidx )
 		   "Maximum power for package %d",j);
 	rapl_native_events[i].fd_offset=cpu_to_use[j];
 	rapl_native_events[i].msr=MSR_PKG_POWER_INFO;
-	rapl_native_events[i].resources.selector = i+1;
+	rapl_native_events[i].resources.selector = i + 1;
 	rapl_native_events[i].type=PACKAGE_MAXIMUM;
 	rapl_native_events[i].return_type=PAPI_DATATYPE_FP64;
 	rapl_native_events[i].writeable=0;
@@ -497,7 +496,7 @@ _rapl_init_substrate( int cidx )
 		   "Maximum time window for package %d",j);
 	rapl_native_events[i].fd_offset=cpu_to_use[j];
 	rapl_native_events[i].msr=MSR_PKG_POWER_INFO;
-	rapl_native_events[i].resources.selector = i+1;
+	rapl_native_events[i].resources.selector = i + 1;
 	rapl_native_events[i].type=PACKAGE_TIME_WINDOW;
 	rapl_native_events[i].return_type=PAPI_DATATYPE_FP64;
 	rapl_native_events[i].writeable=0;
@@ -517,7 +516,7 @@ _rapl_init_substrate( int cidx )
 		   "Energy used by chip package %d",j);
 	   rapl_native_events[i].fd_offset=cpu_to_use[j];
 	   rapl_native_events[i].msr= MSR_PKG_ENERGY_STATUS;
-	   rapl_native_events[i].resources.selector = i+1;
+	   rapl_native_events[i].resources.selector = i + 1;
 	   rapl_native_events[i].type=PACKAGE_ENERGY;
 	   rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
 	   rapl_native_events[i].writeable=0;
@@ -535,7 +534,7 @@ _rapl_init_substrate( int cidx )
 		   "Energy used by Power Plane 1 (Often GPU) on package %d",j);
            rapl_native_events[i].fd_offset=cpu_to_use[j];
 	   rapl_native_events[i].msr=MSR_PP1_ENERGY_STATUS;
-	   rapl_native_events[i].resources.selector = i+1;
+	   rapl_native_events[i].resources.selector = i + 1;
 	   rapl_native_events[i].type=PACKAGE_ENERGY;
 	   rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
 	   rapl_native_events[i].writeable=0;
@@ -553,7 +552,7 @@ _rapl_init_substrate( int cidx )
 		   "Energy used by DRAM on package %d",j);
 	   rapl_native_events[i].fd_offset=cpu_to_use[j];
 	   rapl_native_events[i].msr=MSR_DRAM_ENERGY_STATUS;
-	   rapl_native_events[i].resources.selector = i+1;
+	   rapl_native_events[i].resources.selector = i + 1;
 	   rapl_native_events[i].type=PACKAGE_ENERGY;
 	   rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
 	   rapl_native_events[i].writeable=0;
@@ -572,7 +571,7 @@ _rapl_init_substrate( int cidx )
 		   "Energy used by all cores in package %d",j);
 	   rapl_native_events[i].fd_offset=cpu_to_use[j];
 	   rapl_native_events[i].msr=MSR_PP0_ENERGY_STATUS;
-	   rapl_native_events[i].resources.selector = i+1;
+	   rapl_native_events[i].resources.selector = i + 1;
 	   rapl_native_events[i].type=PACKAGE_ENERGY;
 	   rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
 	   rapl_native_events[i].writeable=0;
@@ -594,7 +593,7 @@ _rapl_init_substrate( int cidx )
 		   "Package Power Limit MSR, package %d",j);
 	rapl_native_events[i].fd_offset=cpu_to_use[j];
 	rapl_native_events[i].msr=MSR_PKG_POWER_LIMIT;
-	rapl_native_events[i].resources.selector = i+1;
+	rapl_native_events[i].resources.selector = i + 1;
 	rapl_native_events[i].type=PACKAGE_MSR_RAW;
 	rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
 	rapl_native_events[i].writeable=1;
@@ -611,7 +610,7 @@ _rapl_init_substrate( int cidx )
 		   "PP0 Power Limit MSR, Package %d",j);
 	rapl_native_events[i].fd_offset=cpu_to_use[j];
 	rapl_native_events[i].msr=MSR_PP0_POWER_LIMIT;
-	rapl_native_events[i].resources.selector = i+1;
+	rapl_native_events[i].resources.selector = i + 1;
 	rapl_native_events[i].type=PACKAGE_MSR_RAW;
 	rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
 	rapl_native_events[i].writeable=0;/*Currently, this is locked out on LC machines */
@@ -629,7 +628,7 @@ _rapl_init_substrate( int cidx )
 		   "PP1 Power Limit MSR, Package %d",j);
 	rapl_native_events[i].fd_offset=cpu_to_use[j];
 	rapl_native_events[i].msr=MSR_PP1_POWER_LIMIT;
-	rapl_native_events[i].resources.selector = i+1;
+	rapl_native_events[i].resources.selector = i + 1;
 	rapl_native_events[i].type=PACKAGE_MSR_RAW;
 	rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
 	rapl_native_events[i].writeable=0; /*Locked out */
@@ -647,7 +646,7 @@ _rapl_init_substrate( int cidx )
 		   "DRAM Power Limit MSR, Package %d",j);
 	rapl_native_events[i].fd_offset=cpu_to_use[j];
 	rapl_native_events[i].msr=MSR_DRAM_POWER_LIMIT;
-	rapl_native_events[i].resources.selector = i+1;
+	rapl_native_events[i].resources.selector = i + 1;
 	rapl_native_events[i].type=PACKAGE_MSR_RAW;
 	rapl_native_events[i].return_type=PAPI_DATATYPE_UINT64;
 	rapl_native_events[i].writeable=0; /*Locked out on LC Machines at present*/
@@ -899,17 +898,10 @@ _rapl_update_control_state( hwd_control_state_t *ctl,
 
     for( i = 0; i < count; i++ ) {
        index=native[i].ni_event&PAPI_NATIVE_AND_MASK&PAPI_COMPONENT_AND_MASK;
-      
-//	rapl_native_events[index].resources.selector = i; 
-	 native[i].ni_position=rapl_native_events[index].resources.selector - 1;
+    //   native[i].ni_position=rapl_native_events[index].resources.selector - 1;
        control->being_measured[index]=1;
 	
-	//PATKI:I don't want to break Vince's code, but I need a way to find the right 
-	//position in the events array to write to the correct register
-	//So i need to store the "i" count somewhere so it can be used as 'position' 
-	//to point to the right register to write to.. , so I can use this in 
-	//the write() module. I can do a much better job at fixing this
-	//but I'll stick to a solution at works, for now.
+	native[i].ni_position = i;
 
 	printf("\nnative[%d].ni_event is %d", i, native[i].ni_event); 
 	printf("\nI need the position: native[%d].ni_position is %d",i, native[i].ni_position); 
