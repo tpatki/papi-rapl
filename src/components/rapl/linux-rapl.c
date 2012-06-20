@@ -109,6 +109,7 @@ typedef struct _rapl_control_state
   long long count[RAPL_MAX_COUNTERS];
   int need_difference[RAPL_MAX_COUNTERS];
   long long lastupdate;
+  int dyn_write_position[RAPL_MAX_COUNTERS];
 
   int eventCount; /*Keep track of total events in EventSet */
 
@@ -121,7 +122,6 @@ typedef struct _rapl_context
   _rapl_control_state_t state;
   
 } _rapl_context_t;
-
 
 papi_vector_t _rapl_vector;
 
@@ -259,16 +259,15 @@ int cpus_per_package = num_cpus/num_packages;
 int i;
 int retval; 
 
-printf("\nThe index, write bit, msr, value of the event is: %d, %d, %d (%x), %ld (%x)", index, rapl_native_events[index].writeable, rapl_native_events[index].msr, rapl_native_events[index].msr, value, value); 
+//printf("\nThe index, write bit, msr, value of the event is: %d, %d, %d (%x), %ld (%x)", index, rapl_native_events[index].writeable, rapl_native_events[index].msr, rapl_native_events[index].msr, value, value); 
 
 if(rapl_native_events[index].writeable == 1) {
 	for (i=start_cpu;i < (start_cpu + cpus_per_package); i++){
-
-/*		fd = open_fd(i);
+		fd = open_fd(i);
 		retval = write_msr(fd, rapl_native_events[index].msr, value);
 		if (retval != PAPI_OK) 
 			return retval; 
-*/	}
+	}
     }
  return PAPI_OK;
 }
@@ -763,24 +762,14 @@ _rapl_write(hwd_context_t *ctx, hwd_control_state_t *ctl, long long *events){
 	_rapl_control_state_t *control = (_rapl_control_state_t *)ctl;
 
 	int i; 
-        int j; 
 
 
 
 	/*PATKI:The values[] array would contain eventCount number of entries corresponding to
  * the event set. */
-	j=0; 
-	
-	for(i=0;i<RAPL_MAX_COUNTERS; i++){
-		if(control->being_measured[i]){
-	 		rapl_hw_write(i, events[j]);
-			j++; 
-	   }
-	}
 
-	if(j!=control->eventCount)
-		printf("Error with writes. Please reset register values!"); 
-	
+	for (i=0;i<control->eventCount;i++)
+		rapl_hw_write(control->dyn_write_position[i], events[i]);
 
 	return PAPI_OK;	
 		
@@ -889,24 +878,19 @@ _rapl_update_control_state( hwd_control_state_t *ctl,
     for(i=0;i<RAPL_MAX_COUNTERS;i++) {
        control->being_measured[i]=0;
     }
-	
-	printf("\nrapl_update: Count is %d", count); 
 
     control->eventCount=count;
     
-    printf("\nrapl_update: eventCount is %d", control->eventCount); 
-
     for( i = 0; i < count; i++ ) {
        index=native[i].ni_event&PAPI_NATIVE_AND_MASK&PAPI_COMPONENT_AND_MASK;
-    //   native[i].ni_position=rapl_native_events[index].resources.selector - 1;
+       native[i].ni_position=rapl_native_events[index].resources.selector - 1;
        control->being_measured[index]=1;
 	
-	native[i].ni_position = i;
+	/*PATKI: Generate the internal mapping. I need the following to ensure that multiple reads and writes 
+ 	* work correctly */
 
-	printf("\nnative[%d].ni_event is %d", i, native[i].ni_event); 
-	printf("\nI need the position: native[%d].ni_position is %d",i, native[i].ni_position); 
-
-
+	control->dyn_write_position[i] = index;
+	
        /* Only need to subtract if it's a PACKAGE_ENERGY type */
        control->need_difference[index]=
 	 (rapl_native_events[index].type==PACKAGE_ENERGY);

@@ -136,6 +136,9 @@ int main (int argc, char **argv)
                               "PAPI_create_eventset()",retval);
      }
 
+
+	printf("\n\nEvent set created");
+	printf("\n\nEvent set created");
      /* Add all events */
 
      code = PAPI_NATIVE_MASK;
@@ -159,7 +162,13 @@ int main (int argc, char **argv)
 	
 	strncpy(units[num_events],evinfo.units,PAPI_MIN_STR_LEN);
 
-        retval = PAPI_add_event( EventSet, code );
+
+
+	printf("\n\nHere");
+	printf("\n\nHere");
+       
+
+ retval = PAPI_add_event( EventSet, code );
         if (retval != PAPI_OK) {
 	  break; /* We've hit an event limit */
 	}
@@ -178,7 +187,10 @@ int main (int argc, char **argv)
 	printf("\nStarting measurements...\n\n");
      }
 
-     /* Start Counting */
+	printf("\n\nHere");
+	printf("\n\nHere");
+    
+ /* Start Counting */
      before_time=PAPI_get_real_nsec();
      retval = PAPI_start( EventSet);
      if (retval != PAPI_OK) {
