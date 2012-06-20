@@ -20,7 +20,7 @@
 void run_test(int quiet) {
 
      if (!quiet) {
-	printf("Sleeping 2 second...\n");
+	printf("\nSleeping 2 second...\n");
      }
 
      /* Sleep */
@@ -43,6 +43,9 @@ int main (int argc, char **argv)
     PAPI_event_info_t evinfo;
     long long before_time,after_time;
     double elapsed_time;
+
+    /*try calling the write function */
+	rapl_print_info();
 
         /* Set TESTS_QUIET variable */
      tests_quiet( argc, argv );      
