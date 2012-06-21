@@ -235,6 +235,9 @@ int main (int argc, char **argv)
 
      elapsed_time=((double)(after_time-before_time))/1.0e9;
 
+	/*Print Info*/
+	rapl_print_info(code,num_events, elapsed_time, values);
+
      /* Done, clean up */
      retval = PAPI_cleanup_eventset( EventSet );
      if (retval != PAPI_OK) {

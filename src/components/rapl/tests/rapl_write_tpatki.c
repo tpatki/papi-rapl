@@ -44,8 +44,6 @@ int main (int argc, char **argv)
     long long before_time,after_time;
     double elapsed_time;
 
-    /*try calling the write function */
-	rapl_print_info();
 
         /* Set TESTS_QUIET variable */
      tests_quiet( argc, argv );      
@@ -120,6 +118,8 @@ int main (int argc, char **argv)
 	printf("\nStarting measurements...\n\n");
      }
 
+
+
      /* Start Counting */
      before_time=PAPI_get_real_nsec();
      retval = PAPI_start( EventSet);
@@ -176,7 +176,13 @@ int main (int argc, char **argv)
 
      elapsed_time=((double)(after_time-before_time))/1.0e9;
 
+
+    /*try calling the write function */
+	rapl_print_info(code,num_events,elapsed_time,values );
+
+
      /* Done, clean up */
+
      retval = PAPI_cleanup_eventset( EventSet );
      if (retval != PAPI_OK) {
 	test_fail(__FILE__, __LINE__, "PAPI_cleanup_eventset()",retval);

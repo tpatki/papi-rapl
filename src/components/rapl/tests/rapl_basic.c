@@ -137,8 +137,6 @@ int main (int argc, char **argv)
      }
 
 
-	printf("\n\nEvent set created");
-	printf("\n\nEvent set created");
      /* Add all events */
 
      code = PAPI_NATIVE_MASK;
@@ -163,12 +161,7 @@ int main (int argc, char **argv)
 	strncpy(units[num_events],evinfo.units,PAPI_MIN_STR_LEN);
 
 
-
-	printf("\n\nHere");
-	printf("\n\nHere");
-       
-
- retval = PAPI_add_event( EventSet, code );
+ 	retval = PAPI_add_event( EventSet, code );
         if (retval != PAPI_OK) {
 	  break; /* We've hit an event limit */
 	}
