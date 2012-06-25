@@ -166,7 +166,7 @@ static long long read_msr(int fd, int msr) {
 
 static int write_msr(int fd, off_t msr, uint64_t val) {
 
-	printf("\n WRMSR INPUTS: %d %d (%x) %ld", fd, msr,msr, val); 
+	//printf("\n WRMSR INPUTS: %d %d (%x) %ld", fd, msr,msr, val); 
 
 	if(pwrite(fd, &val,sizeof(val), msr) != sizeof(val)) {
 	  perror("wrmsr:pwrite");
@@ -264,9 +264,13 @@ int retval;
 if(rapl_native_events[index].writeable == 1) {
 	for (i=start_cpu;i < (start_cpu + cpus_per_package); i++){
 		fd = open_fd(i);
-		retval = write_msr(fd, rapl_native_events[index].msr, value);
-		if (retval != PAPI_OK) 
-			return retval; 
+		/* PATKI: PP0 and DRAM writing is currently locked out, so I have added the following if statement to avoid writing to these MSRs. You can remove this if the MSRs are not locked out. */
+		if((rapl_native_events[index].msr != MSR_DRAM_POWER_LIMIT) && (rapl_native_events[index].msr != MSR_PP0_POWER_LIMIT)){
+
+			retval = write_msr(fd, rapl_native_events[index].msr, value);
+			if (retval != PAPI_OK) 
+				return retval; 
+		}
 	}
     }
  return PAPI_OK;
@@ -764,13 +768,12 @@ _rapl_write(hwd_context_t *ctx, hwd_control_state_t *ctl, long long *events){
 	int i; 
 
 
-
 	/*PATKI:The values[] array would contain eventCount number of entries corresponding to
  * the event set. */
 
 	for (i=0;i<control->eventCount;i++)
 		rapl_hw_write(control->dyn_write_position[i], events[i]);
-
+		
 	return PAPI_OK;	
 		
 }
