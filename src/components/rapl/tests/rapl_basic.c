@@ -181,7 +181,6 @@ int main (int argc, char **argv)
      }
 
 	printf("\n\nHere");
-	printf("\n\nHere");
     
  /* Start Counting */
      before_time=PAPI_get_real_nsec();
@@ -205,7 +204,7 @@ int main (int argc, char **argv)
      if (!TESTS_QUIET) {
         printf("\nStopping measurements, took %.3fs, gathering results...\n\n",
 	       elapsed_time);
-
+/*
 	printf("Energy measurements:\n");
 
 	for(i=0;i<num_events;i++) {
@@ -237,8 +236,11 @@ int main (int argc, char **argv)
 		    units[i]);
 	   }
 	}
+*/
+	rapl_print_info_event_names(event_names, num_events, elapsed_time, values);
 
      }
+
 
      /* Done, clean up */
      retval = PAPI_cleanup_eventset( EventSet );
