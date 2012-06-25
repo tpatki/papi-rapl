@@ -587,7 +587,7 @@ _rapl_init_substrate( int cidx )
      for(j=0;j<num_packages;j++) {
 	sprintf(rapl_native_events[i].name,
 		"PACKAGE_POWER_LIMIT:PACKAGE%d",j);
-	strncpy(rapl_native_events[i].units,"W",PAPI_MIN_STR_LEN);
+	strncpy(rapl_native_events[i].units,"R",PAPI_MIN_STR_LEN);
 	sprintf(rapl_native_events[i].description,
 		   "Package Power Limit MSR, package %d",j);
 	rapl_native_events[i].fd_offset=cpu_to_use[j];
@@ -604,7 +604,7 @@ _rapl_init_substrate( int cidx )
      for(j=0;j<num_packages;j++) {
 	sprintf(rapl_native_events[i].name,
 		"PP0_POWER_LIMIT:PACKAGE%d",j);
-	strncpy(rapl_native_events[i].units,"W",PAPI_MIN_STR_LEN);
+	strncpy(rapl_native_events[i].units,"R",PAPI_MIN_STR_LEN);
 	sprintf(rapl_native_events[i].description,
 		   "PP0 Power Limit MSR, Package %d",j);
 	rapl_native_events[i].fd_offset=cpu_to_use[j];
@@ -622,7 +622,7 @@ _rapl_init_substrate( int cidx )
      for(j=0;j<num_packages;j++) {
 	sprintf(rapl_native_events[i].name,
 		"PP1_POWER_LIMIT:PACKAGE%d",j);
-	strncpy(rapl_native_events[i].units,"W",PAPI_MIN_STR_LEN);
+	strncpy(rapl_native_events[i].units,"R",PAPI_MIN_STR_LEN);
 	sprintf(rapl_native_events[i].description,
 		   "PP1 Power Limit MSR, Package %d",j);
 	rapl_native_events[i].fd_offset=cpu_to_use[j];
@@ -640,7 +640,7 @@ _rapl_init_substrate( int cidx )
      for(j=0;j<num_packages;j++) {
 	sprintf(rapl_native_events[i].name,
 		"DRAM_POWER_LIMIT: PACKAGE%d",j);
-	strncpy(rapl_native_events[i].units,"s",PAPI_MIN_STR_LEN);
+	strncpy(rapl_native_events[i].units,"R",PAPI_MIN_STR_LEN);
 	sprintf(rapl_native_events[i].description,
 		   "DRAM Power Limit MSR, Package %d",j);
 	rapl_native_events[i].fd_offset=cpu_to_use[j];

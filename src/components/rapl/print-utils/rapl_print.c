@@ -3,7 +3,7 @@
 #include "rapl_print.h"
 #include "papi_test.h"
 
-void rapl_print_info(int code, int num_events, double elapsed, long long *values){
+void rapl_print_info(int *code, int num_events, double elapsed, long long *values){
 	
 	int i=0;
 	int r; 
@@ -14,13 +14,13 @@ void rapl_print_info(int code, int num_events, double elapsed, long long *values
 	int retval;
 
 	for(i=0;i<num_events;i++) {
-	        retval = PAPI_event_code_to_name( code, event_names[i] );
+	        retval = PAPI_event_code_to_name(code[i], event_names[i] );
 	        if ( retval != PAPI_OK ) {
-        		   printf("Error translating %x\n",code);
+        		   printf("Error translating %x\n",code[i]);
            		   test_fail( __FILE__, __LINE__, "PAPI_event_code_to_name", retval );
        		 }
 
-       		 retval = PAPI_get_event_info(code,&evinfo);
+       		 retval = PAPI_get_event_info(code[i],&evinfo);
         	if (retval != PAPI_OK) {
           		test_fail( __FILE__, __LINE__,"Error getting event info\n",retval);
         	}
@@ -29,9 +29,9 @@ void rapl_print_info(int code, int num_events, double elapsed, long long *values
 
 	}
 
-	printf("\n************** BEGIN RAPL INFO ***************");
+	printf("\n*************** BEGIN RAPL INFO ***************");
 
-        printf("Energy measurements:\n");
+        printf("\nEnergy measurements:\n");
 
 	for(i=0;i<num_events;i++) {
            if (strstr(units[i],"nJ")) {
@@ -47,7 +47,10 @@ void rapl_print_info(int code, int num_events, double elapsed, long long *values
         printf("Fixed values:\n");
 
         for(i=0;i<num_events;i++) {
-           if (!strstr(units[i],"nJ")) {
+	   if(strstr(units[i],"R")){
+		printf("%s\t0x%x\n", event_names[i], values[i]);
+	   }
+           if (!strstr(units[i],"nJ") && !strstr(units[i],"R")) {
 
              union {
                long long ll;
@@ -63,6 +66,6 @@ void rapl_print_info(int code, int num_events, double elapsed, long long *values
            }
         }
 
-	printf("\n************** END RAPL INFO ***************");
+	printf("\n*************** END RAPL INFO ***************\n");
 }
 

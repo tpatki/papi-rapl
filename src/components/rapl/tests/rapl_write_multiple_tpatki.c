@@ -16,7 +16,7 @@
 #include "papi_test.h"
 
 #define MAX_RAPL_EVENTS 64
-
+#define NUM_EVENTS 4
 void run_test(int quiet) {
 
      if (!quiet) {
@@ -34,8 +34,8 @@ int main (int argc, char **argv)
     int retval,cid,rapl_cid=-1,numcmp;
     int EventSet = PAPI_NULL;
     long long *values;
-    int num_events=0;
-    int code;
+    int num_events=NUM_EVENTS;
+    int code[NUM_EVENTS];
     char event_names[MAX_RAPL_EVENTS][PAPI_MAX_STR_LEN];
     char units[MAX_RAPL_EVENTS][PAPI_MIN_STR_LEN];
     int r,i, j;
@@ -93,80 +93,46 @@ int main (int argc, char **argv)
 
 
      /* Add the MSR_PKG_POWER_LIMIT: PACKAGE0 event */
-	code = PAPI_NATIVE_MASK; 
+	code[0] = PAPI_NATIVE_MASK; 
 
-	retval = PAPI_event_name_to_code("PACKAGE_POWER_LIMIT:PACKAGE0", &code);
+	retval = PAPI_event_name_to_code("PACKAGE_POWER_LIMIT:PACKAGE0", &code[0]);
         if ( retval != PAPI_OK ) {
            test_fail( __FILE__, __LINE__, "PACKAGE_POWER_LIMIT:PACKAGE0 not found\n",retval );
         }
 
-	retval = PAPI_add_event( EventSet, code);
-        if ( retval != PAPI_OK ) {
-           test_fail( __FILE__, __LINE__, "PAPI_add_events failed\n", retval );
-	}
-     
-    num_events++;
-
-
-
 
      /* Add the PACKAGE_ENERGY:  PACKAGE0 event */
-        code = PAPI_NATIVE_MASK;
 
-        retval = PAPI_event_name_to_code("PACKAGE_ENERGY:PACKAGE0", &code);
+	code[1] = PAPI_NATIVE_MASK; 
+        retval = PAPI_event_name_to_code("PACKAGE_ENERGY:PACKAGE0", &code[1]);
         if ( retval != PAPI_OK ) {
            test_fail( __FILE__, __LINE__, "PACKAGE_ENERGY:PACKAGE0 not found\n",retval );
         }
 
-        retval = PAPI_add_event( EventSet, code);
-        if ( retval != PAPI_OK ) {
-           test_fail( __FILE__, __LINE__, "PAPI_add_events failed\n", retval );
-        }
-
-    num_events++;
-
-
-
-
 
      /* Add the PACKAGE_POWER_LIMIT: PACKAGE1 event */
-	code = PAPI_NATIVE_MASK; 
+	code[2] = PAPI_NATIVE_MASK; 
 
-        retval = PAPI_event_name_to_code("PACKAGE_POWER_LIMIT:PACKAGE1", &code);
+        retval = PAPI_event_name_to_code("PACKAGE_POWER_LIMIT:PACKAGE1", &code[2]);
         if ( retval != PAPI_OK ) {
            test_fail( __FILE__, __LINE__, "PACKAGE_POWER_LIMIT:PACKAGE1 not found\n",retval );
         }
 
-        retval = PAPI_add_event( EventSet, code);
-        if ( retval != PAPI_OK ) {
-           test_fail( __FILE__, __LINE__, "PAPI_add_events failed\n", retval );
-        }
-
-    num_events++;
-
-
  /* Add the PACKAGE_ENERGY:  PACKAGE1 event */
-        code = PAPI_NATIVE_MASK;
+       code[3] = PAPI_NATIVE_MASK;
 
-        retval = PAPI_event_name_to_code("PACKAGE_ENERGY:PACKAGE1", &code);
+        retval = PAPI_event_name_to_code("PACKAGE_ENERGY:PACKAGE1", &code[3]);
         if ( retval != PAPI_OK ) {
            test_fail( __FILE__, __LINE__, "PACKAGE_ENERGY:PACKAGE1 not found\n",retval );
         }
 
-        retval = PAPI_add_event( EventSet, code);
-        if ( retval != PAPI_OK ) {
-           test_fail( __FILE__, __LINE__, "PAPI_add_events failed\n", retval );
-        }
+/*Add all events*/
 
-    num_events++;
+	retval = PAPI_add_events(EventSet, code, num_events);
 
-
-
-
-    printf("\nNum_events: %d", num_events);
-
-
-
+	if(retval != PAPI_OK) {
+		test_fail(__FILE__, __LINE__, "PAPI_add_events()\n", retval);
+	}
 
 
      values=calloc(num_events,sizeof(long long));
