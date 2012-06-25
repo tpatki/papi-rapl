@@ -1,4 +1,4 @@
-rapl.c
-rapl.o
+mpi-rapl.c
+mpi-rapl.o
 .*.swp
 
