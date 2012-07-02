@@ -159,7 +159,7 @@ if(rank % msr_rank_mod == 0) {
 
      elapsed_time=((double)(after_time-before_time))/1.0e9;
 
-     rapl_print_info_event_names(event_names, num_events, elapsed_time, values);
+     rapl_print_info_event_names(event_names, num_events, elapsed_time, values,rank);
 
 } /*end if*/
 

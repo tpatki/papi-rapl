@@ -237,7 +237,7 @@ int main (int argc, char **argv)
 	   }
 	}
 */
-	rapl_print_info_event_names(event_names, num_events, elapsed_time, values);
+	rapl_print_info_event_names(event_names, num_events, elapsed_time, values,0);
 
      }
 

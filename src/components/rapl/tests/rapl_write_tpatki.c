@@ -16,7 +16,7 @@
 #include "papi_test.h"
 
 #define MAX_RAPL_EVENTS 64
-
+#define NUM_EVENTS 1 
 void run_test(int quiet) {
 
      if (!quiet) {
@@ -34,8 +34,8 @@ int main (int argc, char **argv)
     int retval,cid,rapl_cid=-1,numcmp;
     int EventSet = PAPI_NULL;
     long long *values;
-    int num_events=0;
-    int code;
+    int num_events=NUM_EVENTS;
+    int code[NUM_EVENTS];
     char event_names[MAX_RAPL_EVENTS][PAPI_MAX_STR_LEN];
     char units[MAX_RAPL_EVENTS][PAPI_MIN_STR_LEN];
     int r,i;
@@ -91,23 +91,20 @@ int main (int argc, char **argv)
      }
 
 
-	code = PAPI_NATIVE_MASK; 
+	code[0] = PAPI_NATIVE_MASK; 
 
      /* Add the MSR_PKG_POWER_LIMIT event */
 
-	retval = PAPI_event_name_to_code("PACKAGE_POWER_LIMIT:PACKAGE0", &code);
+	retval = PAPI_event_name_to_code("PACKAGE_POWER_LIMIT:PACKAGE0", &code[0]);
         if ( retval != PAPI_OK ) {
            test_fail( __FILE__, __LINE__, "PACKAGE_POWER_LIMIT:PACKAGE0 not found\n",retval );
         }
 
-	retval = PAPI_add_event( EventSet, code);
+	retval = PAPI_add_event( EventSet, code[0]);
         if ( retval != PAPI_OK ) {
            test_fail( __FILE__, __LINE__, "PAPI_add_events failed\n", retval );
 	}
      
-    num_events++;
-
-    printf("\nNum_events: %d", num_events);
 
      values=calloc(num_events,sizeof(long long));
      if (values==NULL) {
@@ -134,16 +131,13 @@ int main (int argc, char **argv)
         }
  
 	printf("\nBEFORE PAPI_write(): Values are:");
-//	for(int j=0;j<num_events;j++){
 		printf("\nValues [%d] = %ld (%x) ", (int)0, values[0], values[0]);
-//	}	
 
 
 	printf("\n Clamping power to 55W and then running the test"); 
 
 	values[0] = (long long) (0x38198); 
 
-	printf("values[0] = %d (%x)", values[0], values[0]);
 	
 	retval = PAPI_write ( EventSet, values );
         if ( retval != PAPI_OK ) {
@@ -162,10 +156,8 @@ int main (int argc, char **argv)
         }
 
 
-	printf("\nAFTER PAPI_write(): Values are:");
-//	for(int j=0;j<num_events;j++){
-		printf("\nValues [%d] = %ld (%x)", (int)0, values[0], values[0]);
-//	}	
+	printf("AFTER PAPI_write(): Values are:\n");
+		printf("Values [%d] = %ld (%x)\n", (int)0, values[0], values[0]);
 
      /* Stop Counting */
      after_time=PAPI_get_real_nsec();
@@ -178,7 +170,7 @@ int main (int argc, char **argv)
 
 
     /*try calling the write function */
-	rapl_print_info(code,num_events,elapsed_time,values );
+	rapl_print_info(code,num_events,elapsed_time,values,0);
 
 
      /* Done, clean up */

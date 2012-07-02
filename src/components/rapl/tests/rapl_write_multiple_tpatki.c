@@ -20,7 +20,7 @@
 void run_test(int quiet) {
 
      if (!quiet) {
-	printf("Sleeping 2 second...\n");
+	printf("\nSleeping 2 second...\n");
      }
 
      /* Sleep */
@@ -187,9 +187,9 @@ int main (int argc, char **argv)
         }
 
 
-	printf("\nAFTER PAPI_write(): Values are:");
+	printf("AFTER PAPI_write(): Values are:\n");
 	for(j=0;j<num_events;j++){
-		printf("\nValues [%d] = %ld (%x)", (int)j, values[j], values[j]);
+		printf("Values [%d] = %ld (%x)\n", (int)j, values[j], values[j]);
 	}	
 
      /* Stop Counting */
@@ -202,7 +202,7 @@ int main (int argc, char **argv)
      elapsed_time=((double)(after_time-before_time))/1.0e9;
 
 	/*Print Info*/
-	rapl_print_info(code,num_events, elapsed_time, values);
+	rapl_print_info(code,num_events, elapsed_time, values,0);
 
      /* Done, clean up */
      retval = PAPI_cleanup_eventset( EventSet );

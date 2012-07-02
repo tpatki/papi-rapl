@@ -15,10 +15,15 @@ void rapl_print_info(int *code, int num_events, double elapsed, long long *value
 	char hostname[1025];
 	char filetag[2048];
 	FILE *fp=NULL;
+
 	
 	gethostname(hostname, 1024);
+
 	sprintf(filetag, "%s_rapl_%d.out", hostname, uid);
+
+
 	fp = fopen(filetag, "w");
+
 	if(fp==NULL){
 		fprintf(stderr, "Error: Could not open file %s. Printing to screen.", filetag);
 		
@@ -80,6 +85,7 @@ void rapl_print_info(int *code, int num_events, double elapsed, long long *value
 	
 	else { /*Write to a file */
 	
+
 	
 		for(i=0;i<num_events;i++) {
 		        retval = PAPI_event_code_to_name(code[i], event_names[i] );
@@ -96,6 +102,7 @@ void rapl_print_info(int *code, int num_events, double elapsed, long long *value
         		strncpy(units[i],evinfo.units,PAPI_MIN_STR_LEN);
 
 		}
+
 
 		fprintf(fp,"\n*************** BEGIN RAPL INFO ***************");
 
